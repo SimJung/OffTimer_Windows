@@ -13,26 +13,20 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup .NET 8
-        uses: actions/setup-dotnet@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
-          dotnet-version: '8.0.x'
+          python-version: '3.13'
 
-      - name: Build standalone EXE
-        run: >
-          dotnet publish OffTimer.csproj
-          -c Release
-          -r win-x64
-          --self-contained true
-          -p:PublishSingleFile=true
-          -p:EnableCompressionInSingleFile=true
-          -p:DebugType=None
-          -p:DebugSymbols=false
-          -o publish
+      - name: Install PyInstaller
+        run: python -m pip install -r requirements.txt
 
-      - name: Upload OffTimer.exe
+      - name: Build OffTimer.exe
+        run: python -m PyInstaller --noconfirm --clean --onefile --windowed --name OffTimer offtimer.py
+
+      - name: Upload EXE
         uses: actions/upload-artifact@v4
         with:
           name: OffTimer-Windows-x64
-          path: publish/OffTimer.exe
+          path: dist/OffTimer.exe
           if-no-files-found: error
