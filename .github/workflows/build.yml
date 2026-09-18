@@ -1,0 +1,38 @@
+name: Build OffTimer
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Build standalone EXE
+        run: >
+          dotnet publish OffTimer.csproj
+          -c Release
+          -r win-x64
+          --self-contained true
+          -p:PublishSingleFile=true
+          -p:EnableCompressionInSingleFile=true
+          -p:DebugType=None
+          -p:DebugSymbols=false
+          -o publish
+
+      - name: Upload OffTimer.exe
+        uses: actions/upload-artifact@v4
+        with:
+          name: OffTimer-Windows-x64
+          path: publish/OffTimer.exe
+          if-no-files-found: error
